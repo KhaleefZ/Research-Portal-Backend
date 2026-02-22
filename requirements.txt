@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-multipart
+pymupdf
+pytesseract
+pdf2image
+Pillow
+pandas
+xlsxwriter
+openpyxl
+google-genai
+python-dotenv
+pydantic
