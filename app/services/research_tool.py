@@ -55,20 +55,29 @@ def run_financial_extraction(text: str) -> List[Dict]:
     logger.info(f"Local extraction found {len(local_data) if local_data else 0} records. Using Gemini for comprehensive extraction...")
     
     # STEP 2: Use Gemini AI for intelligent extraction if local method insufficient
+    gemini_error = None
     try:
         gemini_data = extract_with_gemini(text)
         if gemini_data:
             logger.info(f"Gemini extraction successful: {len(gemini_data)} records")
             return clean_financial_data(gemini_data)
     except Exception as e:
-        logger.error(f"Gemini extraction failed: {str(e)[:200]}")
+        gemini_error = str(e)
+        logger.error(f"Gemini extraction failed: {gemini_error[:200]}")
     
     # STEP 3: If we got any data from local extraction, return it
     if local_data:
         logger.warning(f"Gemini failed, returning {len(local_data)} records from local extraction")
         return clean_financial_data(local_data)
-    
+    # If Gemini failed and no local data, propagate error info
     logger.warning("No financial data extracted from document")
+    if gemini_error:
+        return [{
+            "Particulars": "⚠️ Gemini API Error",
+            "Status": "Unable to extract financial tables due to AI service error.",
+            "Details": f"Gemini error: {gemini_error[:200]}",
+            "Recommendation": "Please try again later or check Gemini API status."
+        }]
     return []
 
 
